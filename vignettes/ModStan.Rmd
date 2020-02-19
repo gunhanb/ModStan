@@ -1,0 +1,76 @@
+---
+title: "DOse-response modeling using ModStan"
+author: "Burak Kürsad Günhan"
+date: "`r Sys.Date()`"
+output: rmarkdown::html_vignette
+bibliography: references.bib
+vignette: >
+  %\VignetteIndexEntry{Fitting Binomial-Normal hierarchical model using MetaStan}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+fig_caption: yes
+---
+
+```{r setup, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#"
+)
+```
+
+## Introduction
+Dose-response modeling in drug finding trials is an important part of the drug development. We introduced the shrinkage estimation to estimate dose-response fucntion in phase II trials with multiple subgroups, for instanse dose regimens. To automate the implementation, we developed `ModStan` which uses **Stan** (a modern MCMC engine) to fit several models including pooling, shrinkage and stratified analysis. This package is the accompanying package of @Guenhan. See @Guenhan for model descriptions.
+
+
+## Installation 
+The development version of `ModStan` is available on Github ([https://github.com/gunhanb/ModStan](https://github.com/gunhanb/ModStan)) and can be installed using `devtools` package as follows:
+
+```{r install, eval = FALSE}
+devtools:::install_github("gunhanb/ModStan")
+```
+
+The dupilumab example is available in the package, and it can be loaded as follows:
+
+```{r dataset}
+library("ModStan")
+data("dat.Dupilumab", package = "ModStan")
+head(dat.Dupilumab)
+```
+
+Additional information can be obtained by typing `?dat.Dupilumab` (for any dataset and function in the package). 
+
+## Fitting a binomial-normal hierarchical model
+`mod_stan` is the main fitting function of this package. The main computations are executed via the `rstan` package's `sampling` function. We can fit the binomial-normal hierarchical model [@Guenhan] using a weakly informative prior for treatment effect as follows:
+
+
+```{r bnhmFit, results="hide"}
+shrinkage.Dupilumab.stan  <- mod_stan(dose = dose,
+                                      resp = resp,
+                                      subgroup = subgroup,
+                                      frequency = frequency,
+                                      data = dat.Dupilumab,
+                                      model = "Shrinkage",
+                                      beta_prior =  1,
+                                      beta_prior_dist = "half-normal")
+```
+
+
+Convergence diagnostics, very conveniently, obtained using `shinystan` package as follows:
+
+```{r shinystan, eval = FALSE}
+library("shinystan")
+## Firstly convert "stan" object to a "shinystan" object
+launch_shinystan(shrinkage.Dupilumab.stan$fit_sum)
+```
+
+A simple summary of the fitted model is given by `print` option:
+
+```{r print}
+print(shrinkage.Dupilumab.stan)
+```
+
+
+Please see @Guenhan and @Feller for complete model descriptions.
+
+
+# References

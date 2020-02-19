@@ -20,11 +20,11 @@ print.mod_stan <- function(x, digits = 2, ...) {
   cat("E_max\n")
   print(round(results[c('theta_1'), -c(2, 3, 5, 7, 9, 10)], digits))
   cat("ED_50 (reference frequency)\n")
-  print(round(results[c('theta_2'), -c(2, 3, 5, 7, 9, 10)], digits))
+  print(round(results[c('theta_2[2]'), -c(2, 3, 5, 7, 9, 10)], digits))
 
   if (x$model %in% c("Shrinkage") == TRUE){
     cat("Between-subgroup heterogeneity\n")
-    print(round(results['tau_theta_2', -c(2, 3, 5, 7, 9, 10)], digits))
+    print(round(results['beta_theta_2', -c(2, 3, 5, 7, 9, 10)], digits))
   }
 
   return(invisible())

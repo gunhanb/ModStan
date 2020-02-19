@@ -1,5 +1,5 @@
 library(testthat)
-library(MetaStan)
+library(ModStan)
 
 
-test_check("MetaStan")
+test_check("ModStan")

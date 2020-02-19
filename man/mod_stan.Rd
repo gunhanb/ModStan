@@ -15,6 +15,7 @@ mod_stan(
   model = "Shrinkage",
   beta_prior = 0.5,
   beta_prior_dist = "half-normal",
+  init = "random",
   chains = 3,
   iter = 2000,
   warmup = 1000,
@@ -32,9 +33,11 @@ This is only needed when subgroups refer to dose regimens.}
 \item{resp}{A numerical vector specfiying the response values}
 
 \item{reference_freq}{A numerical value specifying the frequency of administration in hours
-for the reference dose regimen.}
+for the reference dose regimen. Needed for `Pooling` method.}
 
 \item{data}{Optional data frame containing the variables given to the arguments above}
+
+\item{N_pred}{Number of predicted dose. Default is 30.}
 
 \item{model}{A string specifying the model used. Available options are `Pooling`,
 `Stratified`, and `Shrinkage`. Default is `Shrinkage`.}
@@ -45,6 +48,9 @@ for heterogenety stdev. Default is 0.5.}
 \item{beta_prior_dist}{A string specifying the prior density for the heterogeneity standard deviation,
 option is `half-normal` for half-normal prior, `uniform` for uniform prior, `half-cauchy` for
 half-cauchy prior.}
+
+\item{init}{Initial values specification. The default means they are generated
+randomly by `rstan`.}
 
 \item{chains}{A positive integer specifying the number of Markov chains.
 The default is 4.}
@@ -78,7 +84,7 @@ partial.shrinkage.Dupilumab.stan = mod_stan(dose = dose,
                                            frequency = frequency,
                                            data = dat.dupilumab,
                                            model = "Shrinkage",
-                                           reference_freq = 24 * 7 * 8,
+                                           reference_freq = NULL,
                                            beta_prior_dist = "half-normal",
                                            beta_prior = 0.5,
                                            chains = 4,

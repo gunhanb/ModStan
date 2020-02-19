@@ -9,6 +9,7 @@
 #' @param subgroup A numerical vector specfiying the subgroup indicator
 #' @param frequency A numerical vector specfiying the frequency of adminsitration in hours.
 #' This is only needed when subgroups refer to dose regimens.
+#' @param N_pred Number of predicted dose. Default is 30.
 #' @param reference_freq A numerical value specifying the frequency of administration in hours
 #' for the reference dose regimen. Needed for `Pooling` method.
 #' @param data Optional data frame containing the variables given to the arguments above
@@ -28,6 +29,8 @@
 #' (including warmup). The default is 2000.
 #' @param warmup A positive integer specifying the number of warmup (aka burnin)
 #' iterations per chain. The default is 1000.
+#' @param init Initial values specification. The default means they are generated
+#' randomly by `rstan`.
 #' @param chains A positive integer specifying the number of Markov chains.
 #' The default is 4.
 #' @return an object of class `stanfit` returned by `rstan::sampling`
@@ -65,6 +68,7 @@ mod_stan = function(dose = NULL,
                     model = "Shrinkage",
                     beta_prior = 0.5,
                     beta_prior_dist = "half-normal",
+                    init = 'random',
                     chains = 3,
                     iter = 2000,
                     warmup = 1000,
@@ -75,7 +79,7 @@ mod_stan = function(dose = NULL,
   }
 
   ################ check reference dose regimen
-  if (model == c("Pooling")) {
+  if (model == c("Pooling") & is.null(reference_freq) == TRUE) {
     stop("Function argument \"reference_freq\" must be provided!!!")
   }
 
@@ -96,6 +100,7 @@ mod_stan = function(dose = NULL,
   mf$model = NULL
   mf$beta_prior = NULL
   mf$beta_prior_dist = NULL
+  mf$init = NULL
   mf$chains = NULL
   mf$iter = NULL
   mf$warmup = NULL
@@ -127,10 +132,6 @@ mod_stan = function(dose = NULL,
                  prior_stdev_sigma = 100)
 
 
-  ### Initial values
-  inits = list(list("theta_0" = -20, "theta_1" = -60),
-               list("theta_0" = -25, "theta_1" = -70),
-               list("theta_0" = -35, "theta_1" = -80))
 
 
   ## Fitting the model
@@ -143,7 +144,7 @@ mod_stan = function(dose = NULL,
                           data = stanDat,
                           chains = chains,
                           iter = iter,
-                          init = inits,
+                          init = init,
                           warmup = warmup,
                           control = list(adapt_delta = adapt_delta))
   }
@@ -153,7 +154,8 @@ mod_stan = function(dose = NULL,
                           chains = chains,
                           iter = iter,
                           warmup = warmup,
-                          control = list(adapt_delta = adapt_delta))
+                          control = list(adapt_delta = adapt_delta),
+                          init = init)
   }
 
 
@@ -178,7 +180,8 @@ mod_stan = function(dose = NULL,
                           chains = chains,
                           iter = iter,
                           warmup = warmup,
-                          control = list(adapt_delta = adapt_delta))
+                          control = list(adapt_delta = adapt_delta),
+                          init = init)
   }
 
   ## MODEL FINISHED
