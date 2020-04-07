@@ -6,46 +6,49 @@
 \usage{
 mod_stan(
   dose = NULL,
-  frequency = NULL,
-  subgroup = NULL,
+  freq = NULL,
+  schedule = NULL,
   resp = NULL,
-  reference_freq = NULL,
+  freq_ref = NULL,
+  sigma = NULL,
   data = NULL,
   N_pred = 30,
-  model = "Shrinkage",
-  beta_prior = 0.5,
-  beta_prior_dist = "half-normal",
+  model = "PP-RE",
+  tau_prior = 0.5,
+  tau_prior_dist = "half-normal",
   init = "random",
   chains = 3,
   iter = 2000,
   warmup = 1000,
+  stan_seed = 1234,
   adapt_delta = 0.95
 )
 }
 \arguments{
 \item{dose}{A numerical vector specfiying the dose values}
 
-\item{frequency}{A numerical vector specfiying the frequency of adminsitration in hours.
-This is only needed when subgroups refer to dose regimens.}
+\item{freq}{A numerical vector specfiying the frequency of administrations in hours.}
 
-\item{subgroup}{A numerical vector specfiying the subgroup indicator}
+\item{schedule}{A numerical vector specfiying the schedule indicator}
 
 \item{resp}{A numerical vector specfiying the response values}
 
-\item{reference_freq}{A numerical value specifying the frequency of administration in hours
-for the reference dose regimen. Needed for `Pooling` method.}
+\item{freq_ref}{A numerical value specifying the reference frequency of administration in hours}
+
+\item{sigma}{An optional vector specfying the standard errors assosciated with `resp`.}
 
 \item{data}{Optional data frame containing the variables given to the arguments above}
 
 \item{N_pred}{Number of predicted dose. Default is 30.}
 
-\item{model}{A string specifying the model used. Available options are `Pooling`,
-`Stratified`, and `Shrinkage`. Default is `Shrinkage`.}
+\item{model}{A string specifying the model used. Available options are
+`CP` (complete pooling), `PP-FE` (partial pooling with fixed effects),
+and `PP-RE` (partial pooling with random effects). Default is `PP-RE`.}
 
-\item{beta_prior}{A numerical value specifying the standard deviation of the prior density
+\item{tau_prior}{A numerical value specifying the standard deviation of the prior density
 for heterogenety stdev. Default is 0.5.}
 
-\item{beta_prior_dist}{A string specifying the prior density for the heterogeneity standard deviation,
+\item{tau_prior_dist}{A string specifying the prior density for the heterogeneity standard deviation,
 option is `half-normal` for half-normal prior, `uniform` for uniform prior, `half-cauchy` for
 half-cauchy prior.}
 
@@ -61,6 +64,8 @@ The default is 4.}
 \item{warmup}{A positive integer specifying the number of warmup (aka burnin)
 iterations per chain. The default is 1000.}
 
+\item{stan_seed}{The seed for random number of generator of Stan.}
+
 \item{adapt_delta}{A numerical value specfying the target average proposal acceptance
 probability for adaptation. See Stan manual for details. Default is 0.95. In general
 you should not need to change adapt_delta unless you see a warning message about
@@ -71,29 +76,31 @@ default to a value closer to 1 (e.g. from 0.95 to 0.99, or from 0.99 to 0.999, e
 an object of class `stanfit` returned by `rstan::sampling`
 }
 \description{
-`mod_stan` fits a dose-response model with subgroups using Stan. Currently, only "emax"
-model is available.
+`mod_stan` fits a dose-response model with multiple schedules
+ using Stan. Currently, only "emax" model is available.
 }
 \examples{
-\donttest{
+\dontrun{
 data('dat.Dupilumab', package = "ModStan")
-## Fitting an Emax model using shrinkage estimation for ED50 parameters
-partial.shrinkage.Dupilumab.stan = mod_stan(dose = dose,
+## Fitting an Emax model using PP-RE estimation for ED50 parameters
+partial.PP-RE.Dupilumab.stan = mod_stan(dose = dose,
                                            resp = resp,
-                                           subgroup = subgroup,
-                                           frequency = frequency,
+                                           schedule = schedule,
+                                           freq = freq,
+                                           sigma = sigma,
                                            data = dat.dupilumab,
-                                           model = "Shrinkage",
-                                           reference_freq = NULL,
-                                           beta_prior_dist = "half-normal",
-                                           beta_prior = 0.5,
+                                           model = "PP-RE",
+                                           freq_ref = 2,
+                                           tau_prior_dist = "half-normal",
+                                           tau_prior = 0.5,
                                            chains = 4,
                                            iter = 2000,
-                                           warmup = 1000)
+                                           warmup = 1000,
+                                           stan.seed = 12243)
 ## Obtaining a small summary
-print(shrinkage.Dupilumab.stan$fit, pars = c("theta_0", "theta_1", "theta_2", "beta_theta_2", "sigma"))
+print(RE.Dupilumab.stan)
 ## Extract the rstan fit for post-processing, eg convergence diagnostics
-shrinkage.dupilumab.stanfit = partial.shrinkage.Dupilumab.stan$fit_sum
+PP-RE.dupilumab.stanfit = partial.PP-RE.Dupilumab.stan$fit_sum
 
 }
 

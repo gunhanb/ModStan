@@ -1,11 +1,10 @@
 ---
-title: "DOse-response modeling using ModStan"
+title: "Dose-response modeling using ModStan"
 author: "Burak Kürsad Günhan"
 date: "`r Sys.Date()`"
 output: rmarkdown::html_vignette
-bibliography: references.bib
 vignette: >
-  %\VignetteIndexEntry{Fitting Binomial-Normal hierarchical model using MetaStan}
+  %\VignetteIndexEntry{Dose-response modeling of phase II trials with multiple schedules using ModStan}
   %\VignetteEngine{knitr::rmarkdown}
   %\VignetteEncoding{UTF-8}
 fig_caption: yes
@@ -19,7 +18,7 @@ knitr::opts_chunk$set(
 ```
 
 ## Introduction
-Dose-response modeling in drug finding trials is an important part of the drug development. We introduced the shrinkage estimation to estimate dose-response fucntion in phase II trials with multiple subgroups, for instanse dose regimens. To automate the implementation, we developed `ModStan` which uses **Stan** (a modern MCMC engine) to fit several models including pooling, shrinkage and stratified analysis. This package is the accompanying package of @Guenhan. See @Guenhan for model descriptions.
+Dose-response modeling in drug finding trials is an important part of the drug development. We introduced the spartial pooling with schedule specific random effects for the $ED_{50}$ parameter to estimate dose-response fucntion in phase II trials with multiple schedules (dose regimens). To automate the implementation, we developed `ModStan` which uses **Stan** (a modern MCMC engine) to fit several models including pooling, shrinkage and stratified analysis. This package is the accompanying package of Günhan, Meyvisch, and Friede (2020).
 
 
 ## Installation 
@@ -39,19 +38,22 @@ head(dat.Dupilumab)
 
 Additional information can be obtained by typing `?dat.Dupilumab` (for any dataset and function in the package). 
 
-## Fitting a binomial-normal hierarchical model
-`mod_stan` is the main fitting function of this package. The main computations are executed via the `rstan` package's `sampling` function. We can fit the binomial-normal hierarchical model [@Guenhan] using a weakly informative prior for treatment effect as follows:
+## Fitting a partial pooling with random effects (PP - RE) model
+`mod_stan` is the main fitting function of this package. The main computations are executed via the `rstan` package's `sampling` function. We can fit the partial pooling with random effects (PP - RE) model (Günhan, Meyvisch, and Friede, 2020) using a weakly informative prior for heterogeneity paarmeter as follows:
 
 
-```{r bnhmFit, results="hide"}
-shrinkage.Dupilumab.stan  <- mod_stan(dose = dose,
-                                      resp = resp,
-                                      subgroup = subgroup,
-                                      frequency = frequency,
-                                      data = dat.Dupilumab,
-                                      model = "Shrinkage",
-                                      beta_prior =  1,
-                                      beta_prior_dist = "half-normal")
+```{r PPREfit, results="hide"}
+PPRE.Dupilumab.stan  <- mod_stan(dose = dose,
+                                 resp = resp,
+                                 schedule = schedule,
+                                 sigma = sigma,
+                                 freq = freq,
+                                 freq_ref = 24 * 7 * 2,
+                                 data = dat.Dupilumab,
+                                 model = "PP-RE",
+                                 stan_seed = 2234,
+                                 tau_prior =  1,
+                                 tau_prior_dist = "half-normal")
 ```
 
 
@@ -60,17 +62,23 @@ Convergence diagnostics, very conveniently, obtained using `shinystan` package a
 ```{r shinystan, eval = FALSE}
 library("shinystan")
 ## Firstly convert "stan" object to a "shinystan" object
-launch_shinystan(shrinkage.Dupilumab.stan$fit_sum)
+launch_shinystan(PPRE.Dupilumab.stan$fit_sum)
 ```
 
 A simple summary of the fitted model is given by `print` option:
 
 ```{r print}
-print(shrinkage.Dupilumab.stan)
+print(PPRE.Dupilumab.stan)
 ```
 
 
-Please see @Guenhan and @Feller for complete model descriptions.
+Please see Günhan, Meyvisch, and Friede (2020) and Feller et al (2017) for complete model descriptions.
 
 
 # References
+
+Feller, C., Schorning, K., Dette, H., Bermann, G., and Bornkamp, B. (2017). Optimal designs for
+dose response curves with common parameters. Annals of Statistics, 45(5):2102–2132.
+
+Günhan, B.K., Meyvisch, P., and Friede, T. (2020). Shrinkage estimation for dose-response modeling in phase II trials
+with multiple schedules. In preparation. 

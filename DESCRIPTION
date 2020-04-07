@@ -1,6 +1,6 @@
 Package: ModStan
 Version: 0.0.1
-Title: Dose-response modelling via 'Stan'
+Title: Dose-Response Modelling via 'Stan'
 Description: Performs dose-response modelling using 'Stan'. 
              Includes shrinkage estimation to analyze phase II trials with multiple subgroups.
 Authors@R: 
@@ -10,7 +10,7 @@ Authors@R:
            email = "burak.gunhan@med.uni-goettingen.de",
            comment = c(ORCID = "0000-0002-7454-8680"))
 License: GPL (>=3)
-Date: 2020-02-19
+Date: 2020-04-07
 Encoding: UTF-8
 LazyData: true
 Biarch: true
@@ -31,7 +31,7 @@ Suggests:
     knitr,
     rmarkdown
 SystemRequirements: GNU make
-URL: http://github.com/gunhanb/ModStan
-BugReports: http://github.com/gunhanb/ModStan/issues
+URL: https://github.com/gunhanb/ModStan
+BugReports: https://github.com/gunhanb/ModStan/issues
 VignetteBuilder: knitr
-RoxygenNote: 7.0.2
+RoxygenNote: 7.1.0

@@ -7,14 +7,10 @@
 using namespace Rcpp;
 
 
-RcppExport SEXP _rcpp_module_boot_stan_fit4Pooling_mod();
-RcppExport SEXP _rcpp_module_boot_stan_fit4Shrinkage_mod();
-RcppExport SEXP _rcpp_module_boot_stan_fit4Stratified_mod();
+RcppExport SEXP _rcpp_module_boot_stan_fit4PP_RE_mod();
 
 static const R_CallMethodDef CallEntries[] = {
-    {"_rcpp_module_boot_stan_fit4Pooling_mod", (DL_FUNC) &_rcpp_module_boot_stan_fit4Pooling_mod, 0},
-    {"_rcpp_module_boot_stan_fit4Shrinkage_mod", (DL_FUNC) &_rcpp_module_boot_stan_fit4Shrinkage_mod, 0},
-    {"_rcpp_module_boot_stan_fit4Stratified_mod", (DL_FUNC) &_rcpp_module_boot_stan_fit4Stratified_mod, 0},
+    {"_rcpp_module_boot_stan_fit4PP_RE_mod", (DL_FUNC) &_rcpp_module_boot_stan_fit4PP_RE_mod, 0},
     {NULL, NULL, 0}
 };
 
